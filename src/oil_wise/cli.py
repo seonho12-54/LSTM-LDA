@@ -55,6 +55,7 @@ def command_demo(arguments: argparse.Namespace) -> int:
 
 def command_topics(arguments: argparse.Namespace) -> int:
     from oil_wise.topic_model import SeededLDATopicModel
+    from oil_wise.visualization import plot_topic_probabilities
 
     output = Path(arguments.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -70,6 +71,7 @@ def command_topics(arguments: argparse.Namespace) -> int:
     topics = model.transform_daily(daily)
     topic_path = output / "daily_topic_probabilities.csv"
     topics.to_csv(topic_path, index=False, encoding="utf-8-sig")
+    plot_topic_probabilities(topics, output / "daily_topic_probabilities.png")
 
     keywords = {
         str(topic_id): [
@@ -92,6 +94,7 @@ def command_train(arguments: argparse.Namespace) -> int:
 
     from oil_wise.sequences import prepare_sequences
     from oil_wise.training import train_price_predictor
+    from oil_wise.visualization import plot_predictions
 
     output = Path(arguments.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -123,6 +126,12 @@ def command_train(arguments: argparse.Namespace) -> int:
         }
     )
     predictions.to_csv(output / "predictions.csv", index=False, encoding="utf-8-sig")
+    plot_predictions(
+        result.dates,
+        result.actual,
+        result.predictions,
+        output / "predictions.png",
+    )
     _write_json(
         output / "metrics.json",
         {
@@ -153,6 +162,7 @@ def command_train(arguments: argparse.Namespace) -> int:
 
 def command_grid(arguments: argparse.Namespace) -> int:
     from oil_wise.experiments import run_experiment_grid
+    from oil_wise.visualization import plot_experiment_heatmap
 
     output = Path(arguments.output)
     output.mkdir(parents=True, exist_ok=True)
@@ -174,6 +184,7 @@ def command_grid(arguments: argparse.Namespace) -> int:
     )
     result.leaderboard.to_csv(output / "leaderboard.csv", index=False, encoding="utf-8-sig")
     _write_json(output / "best_setting.json", result.best_setting)
+    plot_experiment_heatmap(result.leaderboard, output / "rmse_heatmap.png")
     print(result.leaderboard.to_string(index=False))
     return 0
 

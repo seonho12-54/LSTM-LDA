@@ -12,6 +12,7 @@ build/
 .idea/
 .vscode/
 .DS_Store
+tmp/
 
 data/raw/*
 !data/raw/.gitkeep
